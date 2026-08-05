@@ -2,11 +2,14 @@ package com.amit_kundu_io
 
 import com.amit_kundu_io.config.configureAutoHeadResponse
 import com.amit_kundu_io.config.configureHttp
+import com.amit_kundu_io.config.configureKoin
 import com.amit_kundu_io.config.configureResources
 import com.amit_kundu_io.config.configureRouting
 import com.amit_kundu_io.config.configureSecurity
 import com.amit_kundu_io.config.configureSerialization
 import com.amit_kundu_io.config.configureStatusPages
+import com.amit_kundu_io.database.DatabaseFactory
+import com.amit_kundu_io.database.FlywayFactory
 import io.ktor.server.engine.*
 import io.ktor.server.application.*
 import io.ktor.server.netty.Netty
@@ -28,8 +31,11 @@ fun main() {
 
 
 fun Application.module() {
+    DatabaseFactory.init()
+    FlywayFactory.migrate()
+
     configureRouting()
-    //configureKoin()
+    configureKoin()
     configureSerialization()
     configureStatusPages()
     configureHttp()

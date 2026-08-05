@@ -1,0 +1,25 @@
+package com.studycore.util
+
+import io.github.cdimascio.dotenv.dotenv
+
+object Env {
+
+    private val dotenv = dotenv {
+        ignoreIfMissing = true
+        ignoreIfMalformed = true
+    }
+
+    private fun get(name: String): String = System.getenv(name) ?: dotenv[name] ?: error("$name is missing")
+
+    val jwtSecret = get("JWT_SECRET")
+    val jwtIssuer = get("JWT_ISSUER")
+    val jwtAudience = get("JWT_AUDIENCE")
+    val jwtRealm = get("JWT_REALM")
+
+    val accessExpireHr = get("JWT_ACCESS_EXPIRE_HOURS").toLong()
+
+    val refreshExpireDay = get("JWT_REFRESH_EXPIRE_DAYS").toLong()
+
+    val dbPoolSize: Int = (System.getenv("DB_POOL_SIZE") ?: "20").toInt()
+
+}
