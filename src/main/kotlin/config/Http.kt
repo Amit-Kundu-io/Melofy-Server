@@ -8,6 +8,7 @@ import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 import io.ktor.server.routing.openapi.OpenApiDocSource
 
+/** Installs HTTP-level features such as compression and generated Swagger UI. */
 fun Application.configureHttp() {
     install(Compression)
     routing {

@@ -5,24 +5,22 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import com.studycore.util.Env
 
+/** Configures JWT authentication for future protected routes; it is not currently installed. */
 fun Application.configureSecurity() {
-    val jwtAudience = "jwt-audience"
-    val jwtDomain = "https://jwt-provider-domain/"
-    val jwtRealm = "ktor sample app"
-    val jwtSecret = "secret"
     authentication {
-        jwt {
-            realm = jwtRealm
+        jwt("auth-jwt") {
+            realm = Env.jwtRealm
             verifier(
                 JWT
-                    .require(Algorithm.HMAC256(jwtSecret))
-                    .withAudience(jwtAudience)
-                    .withIssuer(jwtDomain)
+                    .require(Algorithm.HMAC256(Env.jwtSecret))
+                    .withAudience(Env.jwtAudience)
+                    .withIssuer(Env.jwtIssuer)
                     .build()
             )
             validate { credential ->
-                if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
+                if (credential.payload.audience.contains(Env.jwtAudience)) JWTPrincipal(credential.payload) else null
             }
         }
     }

@@ -2,6 +2,7 @@ package com.studycore.util
 
 import io.github.cdimascio.dotenv.dotenv
 
+/** Centralized environment reader for runtime configuration that is required by the server. */
 object Env {
 
     private val dotenv = dotenv {
@@ -9,6 +10,7 @@ object Env {
         ignoreIfMalformed = true
     }
 
+    /** Reads one mandatory setting from the process environment or local .env file. */
     private fun get(name: String): String = System.getenv(name) ?: dotenv[name] ?: error("$name is missing")
 
     val jwtSecret = get("JWT_SECRET")

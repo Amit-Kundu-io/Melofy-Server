@@ -5,7 +5,6 @@ import com.amit_kundu_io.config.configureHttp
 import com.amit_kundu_io.config.configureKoin
 import com.amit_kundu_io.config.configureResources
 import com.amit_kundu_io.config.configureRouting
-import com.amit_kundu_io.config.configureSecurity
 import com.amit_kundu_io.config.configureSerialization
 import com.amit_kundu_io.config.configureStatusPages
 import com.amit_kundu_io.database.DatabaseFactory
@@ -14,6 +13,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.application.*
 import io.ktor.server.netty.Netty
 
+/** Starts the Netty server with the local development bind address. */
 fun main() {
     // Detect environment (default: local)
     val env = "local"
@@ -30,16 +30,16 @@ fun main() {
 
 
 
+/** Application composition root: infrastructure is initialized before HTTP routes are registered. */
 fun Application.module() {
     DatabaseFactory.init()
     FlywayFactory.migrate()
 
-    configureRouting()
     configureKoin()
     configureSerialization()
     configureStatusPages()
     configureHttp()
     configureAutoHeadResponse()
     configureResources()
-    configureSecurity()
+    configureRouting()
 }

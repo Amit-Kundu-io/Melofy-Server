@@ -8,6 +8,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.openapi.describe
 import io.ktor.utils.io.ExperimentalKtorApi
 
+/** Adds the baseline OpenAPI success response metadata to a Ktor route. */
 @OptIn(ExperimentalKtorApi::class)
 fun Route.doc(
     summary: String? = null,

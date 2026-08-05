@@ -2,6 +2,7 @@ package com.amit_kundu_io.database
 
 import io.github.cdimascio.dotenv.dotenv
 
+/** Reads database credentials from environment variables first, then the local .env file. */
 object DatabaseConfig {
 
     private val dotenv = dotenv {

@@ -9,6 +9,7 @@ import com.studycore.util.Env
 import org.jetbrains.exposed.v1.core.DatabaseConfig as ExposedDatabaseConfig
 import org.slf4j.LoggerFactory
 
+/** Owns the shared Hikari pool and the Exposed database connection. */
 object DatabaseFactory {
 
     private val logger = LoggerFactory.getLogger("DatabaseFactory")
@@ -18,6 +19,7 @@ object DatabaseFactory {
 
     private lateinit var dataSource: HikariDataSource
 
+    /** Creates the pool and performs a lightweight connectivity check during startup. */
     fun init() {
         val config = HikariConfig().apply {
             poolName = "app-db-pool"
@@ -73,6 +75,7 @@ object DatabaseFactory {
         logger.info("Database initialized - pool='{}' size={}", config.poolName, config.maximumPoolSize)
     }
 
+    /** Releases all JDBC connections during a controlled shutdown. */
     fun close() {
         dataSource.close()
     }

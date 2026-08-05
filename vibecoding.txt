@@ -1,0 +1,113 @@
+MELOFY SERVER — PROJECT RECORD
+Last updated: 2026-08-06 01:51:01 +05:30 (Asia/Kolkata)
+
+FUTURE CODING RULES
+-------------------
+1. Add a short KDoc comment above every named Kotlin function explaining what it does.
+2. Keep comments concise, accurate, and focused on intent, validation, transactions,
+   pagination, or operational behavior—not a restatement of obvious syntax.
+3. Record every material code, API, database, or architecture change in this file with
+   the date and a short explanation.
+4. Never edit an applied Flyway migration. Create a new V{number} migration instead.
+5. Run .\gradlew.bat compileKotlin after implementation changes.
+
+PROJECT
+-------
+Melofy Server is a Kotlin/JVM 21 Ktor backend using PostgreSQL, Exposed ORM,
+HikariCP connection pooling, Flyway database migrations, Kotlin serialization,
+and Koin dependency injection.
+
+APPLICATION FLOW
+----------------
+Routes -> Services -> Repositories -> Exposed tables -> PostgreSQL
+
+Koin creates repository and service dependencies. Ktor routes accept requests,
+services validate input and apply business rules, and repositories perform
+database work inside transactions on Dispatchers.IO.
+
+CHANGE RECORD — 2026-08-06
+--------------------------
+
+10. Documentation convention added — 01:51:01 +05:30
+    - Added concise KDoc comments to named Kotlin functions, services, repositories,
+      routes, helpers, and configuration functions.
+    - Future code must follow the FUTURE CODING RULES section above.
+
+01. Song module added
+    - POST /songs creates a song.
+    - DELETE /songs/{id} deletes a song.
+    - Song details include title, artistName, audioUrl, albumName, description,
+      genre, language, durationSeconds, artworkUrl, releaseDate, and isExplicit.
+    - The server stores audioUrl metadata. Audio binary files should be stored
+      in object storage/CDN rather than PostgreSQL.
+    - Input validation returns 400 response envelopes.
+
+02. Song database migrations added
+    - V1__create_songs.sql creates the songs table.
+    - V2__remove_song_owner.sql removes the former owner_id column because the
+      project does not use JWT authentication.
+
+03. JWT removed from active application setup
+    - Song and playlist APIs are public.
+    - No Authorization header is required.
+    - Public deletion means any client with the song ID can delete that song.
+
+04. Playlist module added
+    - POST /playlists creates a playlist.
+    - GET /playlists lists playlists with cursor pagination.
+    - GET /playlists/{id} gets a playlist.
+    - GET /playlists/{id}/songs lists songs in a playlist.
+    - POST /playlists/{id}/songs/{songId} attaches an existing song.
+    - A new song can be attached during POST /songs using playlistId.
+
+05. Playlist database migration added
+    - V3__create_playlists.sql creates playlists and playlist_songs.
+    - playlist_songs is a many-to-many relation: one song can be in multiple
+      playlists without copying song rows.
+    - A unique constraint prevents adding the same song twice to one playlist.
+    - Foreign keys remove playlist membership when a song or playlist is deleted.
+
+06. Scale-oriented database/API changes
+    - Playlist song retrieval uses cursor pagination, not OFFSET.
+    - Page size is limited to 1..100; default is 50.
+    - Database indexes support playlist-song lookup and cursor paging.
+    - Playlist songCount is maintained during song attach and song deletion,
+      avoiding a COUNT(*) query on every playlist read.
+    - GET /playlists returns totalCount/totalItems and nextCursor.
+
+07. Standard API response added
+    - All current routes and global errors use utility/ApiResponse.kt.
+    - Standard JSON fields are: data, message, succedeed, totalItems, type.
+    - "succedeed" is intentionally spelled this way to match the agreed API
+      contract.
+    - Successful mutation responses use HTTP 200/201 with an envelope; delete
+      endpoints no longer use an empty 204 response.
+
+08. Error handling improved
+    - Invalid JSON, validation failures, missing playlists, and missing songs
+      return structured error envelopes.
+    - Internal server errors are logged on the server and return a safe generic
+      message to clients without exposing database details.
+
+09. Flyway recovery support added
+    - Flyway validates migration checksums on startup.
+    - FLYWAY_REPAIR_ON_STARTUP=true performs one requested repair before migrate.
+    - Use this only once for a development database after an applied migration
+      was edited. Do not enable it in production.
+
+CURRENT API SUMMARY
+-------------------
+GET    /                                  Health response
+POST   /songs                             Create song; optional playlistId
+DELETE /songs/{id}                        Delete song
+POST   /playlists                         Create playlist
+GET    /playlists?limit=50&cursor={id}    List playlists
+GET    /playlists/{id}                    Get playlist details
+POST   /playlists/{id}/songs/{songId}     Add existing song to playlist
+GET    /playlists/{id}/songs?limit=50&cursor={id}
+                                          List playlist songs
+
+VERIFICATION
+------------
+2026-08-06: .\gradlew.bat compileKotlin completed successfully after the
+song, playlist, pagination, and API-response changes.
