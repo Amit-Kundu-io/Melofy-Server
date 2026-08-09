@@ -14,7 +14,7 @@ import io.ktor.utils.io.*
 fun Application.configureRouting() {
     routing {
         get("/") {
-            call.respond(ApiResponses.success("Melofy Server", type = "HEALTH"))
+            call.respond("Melofy Server running......")
         }.doc()
         songRoutes()
         playlistRoutes()
