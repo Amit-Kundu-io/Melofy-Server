@@ -1,4 +1,4 @@
-package com.amit_kundu_io.playlist
+package com.amit_kundu_io.playlist.data.module.res
 
 import com.amit_kundu_io.song_upload.data.models.res.SongResponse
 import kotlinx.serialization.Serializable

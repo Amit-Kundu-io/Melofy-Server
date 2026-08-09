@@ -1,5 +1,9 @@
-package com.amit_kundu_io.playlist
+package com.amit_kundu_io.playlist.data.repoimpl
 
+import com.amit_kundu_io.playlist.data.module.Playlist
+import com.amit_kundu_io.playlist.data.repo.PlaylistRepository
+import com.amit_kundu_io.playlist.db_table.PlaylistSongsTable
+import com.amit_kundu_io.playlist.db_table.PlaylistsTable
 import com.amit_kundu_io.song_upload.data.models.Song
 import com.amit_kundu_io.song_upload.db_table.SongsTable
 import kotlinx.coroutines.Dispatchers
@@ -19,32 +23,7 @@ import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 import kotlin.uuid.Uuid
 
-/** Internal playlist entity used between repository and service layers. */
-data class Playlist(
-    val id: Uuid,
-    val name: String,
-    val description: String?,
-    val artworkUrl: String?,
-    val songCount: Long,
-    val createdAt: Instant,
-    val updatedAt: Instant,
-)
 
-/** Database contract for playlist reads and song membership changes. */
-interface PlaylistRepository {
-    /** Persists new playlist metadata. */
-    suspend fun create(name: String, description: String?, artworkUrl: String?): Playlist
-    /** Finds one playlist by its UUID. */
-    suspend fun find(id: Uuid): Playlist?
-    /** Returns the next primary-key cursor page of playlists. */
-    suspend fun list(cursor: Uuid?, limit: Int): List<Playlist>
-    /** Counts all playlists for API pagination metadata. */
-    suspend fun totalCount(): Long
-    /** Attaches a song once and reports whether the required records exist. */
-    suspend fun addSong(playlistId: Uuid, songId: Uuid): Boolean
-    /** Returns the next membership-cursor page of songs in one playlist. */
-    suspend fun songs(playlistId: Uuid, cursor: Long?, limit: Int): List<Pair<Long, Song>>
-}
 
 /** Indexed JDBC implementation using keyset pagination for large collections. */
 class PlaylistRepositoryImpl : PlaylistRepository {
@@ -75,7 +54,7 @@ class PlaylistRepositoryImpl : PlaylistRepository {
     override suspend fun list(cursor: Uuid?, limit: Int): List<Playlist> = withContext(Dispatchers.IO) {
         transaction {
             PlaylistsTable.selectAll()
-                .where { cursor?.let { PlaylistsTable.id greater it } ?: org.jetbrains.exposed.v1.core.Op.TRUE }
+                .where { cursor?.let { PlaylistsTable.id greater it } ?: Op.TRUE }
                 .orderBy(PlaylistsTable.id to SortOrder.ASC)
                 .limit(limit)
                 .map { it.toPlaylist() }

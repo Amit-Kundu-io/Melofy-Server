@@ -1,4 +1,4 @@
-package com.amit_kundu_io.playlist
+package com.amit_kundu_io.playlist.data.module.req
 
 import kotlinx.serialization.Serializable
 

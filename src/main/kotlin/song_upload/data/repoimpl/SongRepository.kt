@@ -1,14 +1,14 @@
 package com.amit_kundu_io.song_upload.data.repoimpl
 
-import com.amit_kundu_io.playlist.PlaylistNotFoundException
-import com.amit_kundu_io.playlist.PlaylistSongsTable
-import com.amit_kundu_io.playlist.PlaylistsTable
+import com.amit_kundu_io.playlist.db_table.PlaylistSongsTable
+import com.amit_kundu_io.playlist.db_table.PlaylistsTable
 import com.amit_kundu_io.song_upload.data.models.NewSong
 import com.amit_kundu_io.song_upload.data.models.Song
 
 import com.amit_kundu_io.song_upload.data.models.res.SongResponse
 import com.amit_kundu_io.song_upload.db_table.SongsTable
 import com.amit_kundu_io.song_upload.data.repo.SongRepository
+import com.amit_kundu_io.utility.validation_exception.PlaylistNotFoundException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.JoinType

@@ -1,27 +1,18 @@
-package com.amit_kundu_io.playlist
+package com.amit_kundu_io.playlist.service
 
+import com.amit_kundu_io.playlist.data.module.Playlist
+import com.amit_kundu_io.playlist.data.module.req.CreatePlaylistRequest
+import com.amit_kundu_io.playlist.data.module.res.PlaylistPageResponse
+import com.amit_kundu_io.playlist.data.module.res.PlaylistResponse
+import com.amit_kundu_io.playlist.data.module.res.PlaylistSongsResponse
+import com.amit_kundu_io.playlist.data.repo.PlaylistRepository
+import com.amit_kundu_io.utility.validation_exception.PlaylistNotFoundException
+import com.amit_kundu_io.utility.validation_exception.PlaylistValidationException
 import java.net.URI
 import kotlin.uuid.Uuid
 
-/** Signals invalid playlist input supplied by a client. */
-class PlaylistValidationException(message: String) : IllegalArgumentException(message)
 
-/** Signals a syntactically valid playlist identifier that is absent from storage. */
-class PlaylistNotFoundException : NoSuchElementException("Playlist not found")
 
-/** Playlist use cases available to route handlers. */
-interface PlaylistService {
-    /** Creates a validated playlist. */
-    suspend fun create(request: CreatePlaylistRequest): PlaylistResponse
-    /** Gets a playlist from its route UUID. */
-    suspend fun get(id: String): PlaylistResponse
-    /** Lists playlists from an optional cursor and page size. */
-    suspend fun list(cursor: String?, limit: String?): PlaylistPageResponse
-    /** Adds an existing song to an existing playlist. */
-    suspend fun addSong(playlistId: String, songId: String)
-    /** Lists a page of songs belonging to a playlist. */
-    suspend fun songs(id: String, cursor: String?, limit: String?): PlaylistSongsResponse
-}
 
 /** Validates playlist input and prepares cursor-paginated API results. */
 class PlaylistServiceImpl(private val repository: PlaylistRepository) : PlaylistService {

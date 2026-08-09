@@ -2,10 +2,10 @@ package com.amit_kundu_io.config
 
 import com.amit_kundu_io.song_upload.data.repoimpl.SongRepositoryImpl
 import com.amit_kundu_io.song_upload.service.service_impl.SongServiceImpl
-import com.amit_kundu_io.playlist.PlaylistRepository
-import com.amit_kundu_io.playlist.PlaylistRepositoryImpl
-import com.amit_kundu_io.playlist.PlaylistService
-import com.amit_kundu_io.playlist.PlaylistServiceImpl
+import com.amit_kundu_io.playlist.data.repoimpl.PlaylistRepositoryImpl
+import com.amit_kundu_io.playlist.data.repo.PlaylistRepository
+import com.amit_kundu_io.playlist.service.PlaylistService
+import com.amit_kundu_io.playlist.service.PlaylistServiceImpl
 import com.amit_kundu_io.song_upload.data.repo.SongRepository
 import com.amit_kundu_io.song_upload.service.service.SongService
 import io.ktor.server.application.*
