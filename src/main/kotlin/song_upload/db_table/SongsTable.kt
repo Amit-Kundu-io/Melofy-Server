@@ -1,9 +1,8 @@
-package com.amit_kundu_io.song_upload
+package com.amit_kundu_io.song_upload.db_table
 
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.javatime.date
 import org.jetbrains.exposed.v1.javatime.timestamp
-import java.util.UUID
 
 /** Exposed mapping for the songs table created by the Flyway song migration. */
 object SongsTable : Table("songs") {

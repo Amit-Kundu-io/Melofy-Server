@@ -1,6 +1,6 @@
 package com.amit_kundu_io.playlist
 
-import com.amit_kundu_io.song_upload.SongResponse
+import com.amit_kundu_io.song_upload.data.models.res.SongResponse
 import kotlinx.serialization.Serializable
 
 @Serializable

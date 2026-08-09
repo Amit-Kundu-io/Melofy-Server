@@ -1,9 +1,10 @@
 package com.amit_kundu_io.playlist
 
-import com.amit_kundu_io.song_upload.Song
-import com.amit_kundu_io.song_upload.SongsTable
+import com.amit_kundu_io.song_upload.data.models.Song
+import com.amit_kundu_io.song_upload.db_table.SongsTable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -16,7 +17,6 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
-import java.time.LocalDate
 import kotlin.uuid.Uuid
 
 /** Internal playlist entity used between repository and service layers. */
@@ -114,7 +114,7 @@ class PlaylistRepositoryImpl : PlaylistRepository {
                 .selectAll()
                 .where {
                     (PlaylistSongsTable.playlistId eq playlistId) and
-                        (cursor?.let { PlaylistSongsTable.id less it } ?: org.jetbrains.exposed.v1.core.Op.TRUE)
+                        (cursor?.let { PlaylistSongsTable.id less it } ?: Op.TRUE)
                 }
                 .orderBy(PlaylistSongsTable.id to SortOrder.DESC)
                 .limit(limit)

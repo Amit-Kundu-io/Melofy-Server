@@ -1,23 +1,9 @@
-package com.amit_kundu_io.song_upload
+package com.amit_kundu_io.song_upload.data.models
 
+import com.amit_kundu_io.song_upload.data.models.res.SongResponse
 import java.time.Instant
 import java.time.LocalDate
 import kotlin.uuid.Uuid
-
-/** Validated song values ready for persistence. */
-data class NewSong(
-    val title: String,
-    val artistName: String,
-    val audioUrl: String,
-    val albumName: String?,
-    val description: String?,
-    val genre: String?,
-    val language: String?,
-    val durationSeconds: Int?,
-    val artworkUrl: String?,
-    val releaseDate: LocalDate?,
-    val isExplicit: Boolean,
-)
 
 /** Internal song entity mapped from the database and converted to a response at the boundary. */
 data class Song(

@@ -1,13 +1,13 @@
 package com.amit_kundu_io.config
 
-import com.amit_kundu_io.song_upload.SongRepository
-import com.amit_kundu_io.song_upload.SongRepositoryImpl
-import com.amit_kundu_io.song_upload.SongService
-import com.amit_kundu_io.song_upload.SongServiceImpl
+import com.amit_kundu_io.song_upload.data.repoimpl.SongRepositoryImpl
+import com.amit_kundu_io.song_upload.service.service_impl.SongServiceImpl
 import com.amit_kundu_io.playlist.PlaylistRepository
 import com.amit_kundu_io.playlist.PlaylistRepositoryImpl
 import com.amit_kundu_io.playlist.PlaylistService
 import com.amit_kundu_io.playlist.PlaylistServiceImpl
+import com.amit_kundu_io.song_upload.data.repo.SongRepository
+import com.amit_kundu_io.song_upload.service.service.SongService
 import io.ktor.server.application.*
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger

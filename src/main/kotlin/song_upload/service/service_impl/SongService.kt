@@ -1,20 +1,16 @@
-package com.amit_kundu_io.song_upload
+package com.amit_kundu_io.song_upload.service.service_impl
 
+import com.amit_kundu_io.song_upload.data.models.NewSong
+import com.amit_kundu_io.song_upload.data.models.req.CreateSongRequest
+import com.amit_kundu_io.song_upload.data.models.res.SongResponse
+import com.amit_kundu_io.song_upload.data.repo.SongRepository
+import com.amit_kundu_io.song_upload.service.service.SongService
+import com.amit_kundu_io.utility.validation_exception.SongValidationException
 import java.net.URI
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import kotlin.uuid.Uuid
 
-/** Signals client input that cannot be accepted as a song. */
-class SongValidationException(message: String) : IllegalArgumentException(message)
-
-/** Song use cases exposed to HTTP routes. */
-interface SongService {
-    /** Creates a validated song from an API request. */
-    suspend fun upload(request: CreateSongRequest): SongResponse
-    /** Deletes a song specified by its string UUID. */
-    suspend fun delete(id: String): Boolean
-}
 
 /** Validates and normalizes song input before repository calls. */
 class SongServiceImpl(private val repository: SongRepository) : SongService {
@@ -36,7 +32,9 @@ class SongServiceImpl(private val repository: SongRepository) : SongService {
             isExplicit = request.isExplicit,
         )
         val playlistId = request.playlistId?.let { value ->
-            try { Uuid.parse(value) } catch (_: IllegalArgumentException) {
+            try {
+                Uuid.parse(value)
+            } catch (_: IllegalArgumentException) {
                 throw SongValidationException("Give Correct playlistId ")
             }
         }
@@ -45,10 +43,26 @@ class SongServiceImpl(private val repository: SongRepository) : SongService {
 
     /** Validates a song ID before removing the matching record. */
     override suspend fun delete(id: String): Boolean {
-        val songId = try { Uuid.parse(id) } catch (_: IllegalArgumentException) {
+        val songId = try {
+            Uuid.parse(id)
+        } catch (_: IllegalArgumentException) {
             throw SongValidationException("id must be a UUID")
         }
         return repository.delete(songId)
+    }
+
+    override suspend fun songsByPlayListId(playListId: String): List<SongResponse> {
+        return repository.songsByPlayListId(playListId)
+    }
+
+    override suspend fun suggestName(text: String): List<String> {
+        return repository.suggestName(
+            text = text
+        )
+    }
+
+    override suspend fun searchSongs(text: String): List<SongResponse> {
+        return repository.searchSongs(text)
     }
 
     /** Trims and validates a mandatory short text field. */
@@ -65,7 +79,11 @@ class SongServiceImpl(private val repository: SongRepository) : SongService {
     /** Accepts only absolute HTTP or HTTPS URLs. */
     private fun String.validUrl(field: String): String {
         val value = trim()
-        val uri = try { URI(value) } catch (_: IllegalArgumentException) { null }
+        val uri = try {
+            URI(value)
+        } catch (_: IllegalArgumentException) {
+            null
+        }
         val isHttpUrl = uri != null && uri.scheme in setOf("https", "http") && !uri.host.isNullOrBlank()
         if (!isHttpUrl) {
             throw SongValidationException("$field must be an absolute HTTP(S) URL")
