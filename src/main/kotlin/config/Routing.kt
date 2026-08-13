@@ -4,6 +4,7 @@ import com.amit_kundu_io.utility.halper.doc
 import com.amit_kundu_io.song_upload.route.songRoutes
 import com.amit_kundu_io.playlist.routes.playlistRoutes
 import com.plugins.Backblaze_B2.baclblazRoutes
+import com.plugins.storage.upload.route.uploadRoutesB2B
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -22,7 +23,7 @@ fun Application.configureRouting() {
         //uploadRoutes()
         baclblazRoutes()
         //   uploadRoutesB2B()
-       // uploadRoutesB2B()
+        uploadRoutesB2B()
 
 
     }
