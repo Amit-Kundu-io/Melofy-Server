@@ -34,11 +34,14 @@ import org.koin.ktor.ext.inject
 
 private const val AUTH_PROVIDER_NAME = "upload-bearer"
 
-@Serializable data class StartUploadRequest(val fileName: String, val contentType: String)
-@Serializable data class StartUploadResponse(val fileId: String)
+@Serializable
+data class StartUploadRequest(val fileName: String, val contentType: String)
+@Serializable
+data class StartUploadResponse(val fileId: String)
 
 @Serializable data class UploadPartUrlRequest(val fileId: String)
-@Serializable data class UploadPartUrlResponse(val uploadUrl: String, val authorizationToken: String)
+@Serializable
+data class UploadPartUrlResponse(val uploadUrl: String, val authorizationToken: String)
 
 @Serializable data class FinishUploadRequest(val fileId: String, val partSha1Array: List<String>)
 
