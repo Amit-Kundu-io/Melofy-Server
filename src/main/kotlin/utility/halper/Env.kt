@@ -24,4 +24,8 @@ object Env {
 
     val dbPoolSize: Int = (System.getenv("DB_POOL_SIZE") ?: "20").toInt()
 
+    val KEY_ID = get("B2_KEY_ID")
+    val B2_BUCKET_ID = get("B2_BUCKET_ID")
+    val B2_APP_KEY = get("B2_APP_KEY")
+
 }

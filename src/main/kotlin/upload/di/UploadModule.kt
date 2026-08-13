@@ -19,6 +19,10 @@ import com.plugins.storage.upload.repository.UploadRepositoryImpl
 import com.plugins.upload.auth.UploadAuthValidator
 import com.plugins.upload.b2.B2Client
 import com.plugins.upload.b2.KtorClient
+import com.studycore.util.Env
+import com.studycore.util.Env.B2_APP_KEY
+import com.studycore.util.Env.B2_BUCKET_ID
+import com.studycore.util.Env.KEY_ID
 import io.ktor.client.HttpClient
 import org.koin.dsl.module
 import upload.auth.SharedSecretUploadAuthValidator
@@ -34,14 +38,14 @@ val uploadModule1 = module {
 
     single {
         B2Client(
-            keyId = "d896ea49a883",
-            bucketId = "0d280936beda94399af80813",
-            appKey = "005f66a47ae51022b8ec820032e9c7f01e10d640ee",
+            keyId = KEY_ID,
+            bucketId = B2_BUCKET_ID,
+            appKey = B2_APP_KEY,
             httpClient = get()
         )
     }
 
-    single<UploadRepository> { UploadRepositoryImpl(get()) }
+    single<UploadRepository> { UploadRepositoryImpl(get(),get()) }
 
     single<UploadAuthValidator> { SharedSecretUploadAuthValidator(requiredEnv("UPLOAD_API_TOKEN")) }
 }
