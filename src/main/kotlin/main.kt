@@ -15,14 +15,15 @@ import io.ktor.server.netty.Netty
 
 /** Starts the Netty server with the local development bind address. */
 fun main() {
-    // Detect environment (default: local)
-    val env = "local"
+// Detect environment (default: local)
+
+    val env = System.getenv("APP_ENV") ?: "local"
 
     // Use Render's dynamic port if available
-    val port =  8080
+    val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
 
     // Bind host based on environment
-    val host =  "127.0.0.1"
+    val host = if (env == "local") "127.0.0.1" else "0.0.0.0"
 
     embeddedServer(Netty, host = host, port = port, module = Application::module)
         .start(wait = true)

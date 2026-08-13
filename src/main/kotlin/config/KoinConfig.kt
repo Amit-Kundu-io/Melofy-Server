@@ -8,6 +8,7 @@ import com.amit_kundu_io.playlist.service.PlaylistService
 import com.amit_kundu_io.playlist.service.PlaylistServiceImpl
 import com.amit_kundu_io.song_upload.data.repo.SongRepository
 import com.amit_kundu_io.song_upload.service.service.SongService
+import com.plugins.Backblaze_B2.di.uploadModule
 import io.ktor.server.application.*
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
@@ -18,7 +19,7 @@ import org.koin.dsl.module
 fun Application.configureKoin() {
     install(Koin) {
         slf4jLogger()
-        modules(songModule)
+        modules(songModule, uploadModule())
     }
 }
 

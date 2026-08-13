@@ -55,4 +55,20 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)
+
+
+
+    implementation(ktorLibs.server.cors)
+    implementation(ktorLibs.server.defaultHeaders)
+
+
+
+    implementation("com.google.apis:google-api-services-drive:v3-rev20250506-2.0.0")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.30.1")
+    implementation("com.google.http-client:google-http-client-gson:1.47.0")
+
+    implementation("io.ktor:ktor-client-core:3.5.1")
+    implementation("io.ktor:ktor-client-cio:3.5.1")
+    implementation("io.ktor:ktor-client-content-negotiation:3.5.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.5.1")
 }
