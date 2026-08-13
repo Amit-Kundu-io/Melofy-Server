@@ -35,6 +35,7 @@ import com.plugins.storage.upload.b2.FinishLargeFileRequest
 import com.plugins.storage.upload.b2.GetUploadPartUrlRequest
 import com.plugins.storage.upload.b2.ListPartsRequest
 import com.plugins.storage.upload.b2.StartLargeFileRequest
+import com.plugins.upload.models.FinishLargeFileResponse.FinishLargeFileResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -111,14 +112,30 @@ class B2Client(
         return response.bodyOrThrow()
     }
 
-    suspend fun finishLargeFile(fileId: String, partSha1Array: List<String>) {
+    suspend fun finishLargeFile(
+        fileId: String,
+        partSha1Array: List<String>
+    ): FinishLargeFileResponse {
+
         val auth = authorize()
-        val response = httpClient.post("${auth.apiUrl}/b2api/v3/b2_finish_large_file") {
+
+        val response = httpClient.post(
+            "${auth.apiUrl}/b2api/v3/b2_finish_large_file"
+        ) {
             header(HttpHeaders.Authorization, auth.authorizationToken)
             contentType(ContentType.Application.Json)
-            setBody(FinishLargeFileRequest(fileId, partSha1Array))
+
+            setBody(
+                FinishLargeFileRequest(
+                    fileId = fileId,
+                    partSha1Array = partSha1Array
+                )
+            )
         }
+
         response.throwIfNotSuccess()
+
+        return response.body()
     }
 
     suspend fun listPartsWithSha1(fileId: String): Map<Int, String> {
@@ -142,6 +159,11 @@ class B2Client(
         throwIfNotSuccess()
         return body()
     }
+    suspend fun getDownloadUrl(fileName: String): String {
+        val auth = authorize()
+        return "${auth.downloadUrl}/file/Video-Ak/$fileName"
+    }
+
 
     private suspend fun HttpResponse.throwIfNotSuccess() {
         if (status.isSuccess()) return

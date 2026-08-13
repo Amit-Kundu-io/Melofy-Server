@@ -25,6 +25,7 @@ package com.plugins.storage.upload.route
 import com.plugins.storage.upload.repository.UploadOperationException
 import com.plugins.storage.upload.repository.UploadRepository
 import io.ktor.http.*
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -94,7 +95,7 @@ fun Route.uploadRoutesB2B() {
             return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse("fileId and a non-empty partSha1Array are required"))
         }
         runCatching { repository.finishUpload(req.fileId, req.partSha1Array) }
-            .onSuccess { call.respond(HttpStatusCode.OK) }
+            .onSuccess { call.respond(HttpStatusCode.OK, it) }
             .onFailure { call.respondUploadError(it) }
     }
 
@@ -109,7 +110,7 @@ fun Route.uploadRoutesB2B() {
     }
 }
 
-private suspend fun io.ktor.server.application.ApplicationCall.respondUploadError(error: Throwable) {
+private suspend fun ApplicationCall.respondUploadError(error: Throwable) {
     when (error) {
         is IllegalArgumentException ->
             respond(HttpStatusCode.BadRequest, ErrorResponse(error.message ?: "Invalid request"))

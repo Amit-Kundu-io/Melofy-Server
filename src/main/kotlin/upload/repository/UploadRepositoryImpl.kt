@@ -27,12 +27,22 @@ class UploadRepositoryImpl(
             UploadPartUrlResult(uploadUrl = result.uploadUrl, authorizationToken = result.authorizationToken)
         }
 
-    override suspend fun finishUpload(fileId: String, partSha1InOrder: List<String>) {
+    override suspend fun finishUpload(
+        fileId: String,
+        partSha1InOrder: List<String>
+    ): String =
         wrapErrors("finish upload for fileId '$fileId'") {
-            require(partSha1InOrder.isNotEmpty()) { "partSha1InOrder must not be empty" }
-            b2Client.finishLargeFile(fileId, partSha1InOrder)
+            require(partSha1InOrder.isNotEmpty()) {
+                "partSha1InOrder must not be empty"
+            }
+
+            val result = b2Client.finishLargeFile(
+                fileId,
+                partSha1InOrder
+            )
+
+            b2Client.getDownloadUrl(result.fileName)
         }
-    }
 
     override suspend fun listCompletedParts(fileId: String): Map<Int, String> =
         wrapErrors("list completed parts for fileId '$fileId'") {
@@ -48,4 +58,6 @@ class UploadRepositoryImpl(
     } catch (e: Exception) {
         throw UploadOperationException("Failed to $action", e)
     }
+
+
 }

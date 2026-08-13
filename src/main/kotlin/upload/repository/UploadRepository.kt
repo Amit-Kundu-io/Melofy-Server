@@ -30,7 +30,7 @@ interface UploadRepository {
     suspend fun getUploadPartUrl(fileId: String): UploadPartUrlResult
 
     /** Finalizes the large file once all parts are confirmed uploaded, in part-number order. */
-    suspend fun finishUpload(fileId: String, partSha1InOrder: List<String>)
+    suspend fun finishUpload(fileId: String, partSha1InOrder: List<String>): String
 
     /** partNumber -> sha1 for every part the backend already has. Resume source of truth. */
     suspend fun listCompletedParts(fileId: String): Map<Int, String>
