@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 /** Client payload for creating a song; playlistId optionally attaches it atomically to a playlist. */
 data class CreateSongRequest(
-
     val title: String,
     val artistName: String,
     val audioUrl: String,
@@ -18,4 +17,6 @@ data class CreateSongRequest(
     val releaseDate: String? = null,
     val isExplicit: Boolean = false,
     val playlistId: String? = null,
+    val fileName: String? = null,
+    val videoId: String? = null,
 )

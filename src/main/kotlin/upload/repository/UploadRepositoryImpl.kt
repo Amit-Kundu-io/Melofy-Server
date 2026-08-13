@@ -8,11 +8,14 @@
 
 package com.plugins.storage.upload.repository
 
+import com.amit_kundu_io.song_upload.data.models.req.CreateSongRequest
+import com.amit_kundu_io.song_upload.service.service.SongService
 import com.plugins.upload.b2.B2Client
 import utility.wrapErrors
 
 class UploadRepositoryImpl(
-    private val b2Client: B2Client
+    private val b2Client: B2Client,
+    private val uploadRepository: SongService
 ) : UploadRepository {
 
     override suspend fun startUpload(fileName: String, contentType: String): StartUploadResult =
@@ -29,7 +32,8 @@ class UploadRepositoryImpl(
 
     override suspend fun finishUpload(
         fileId: String,
-        partSha1InOrder: List<String>
+        partSha1InOrder: List<String>,
+        songReq : CreateSongRequest?
     ): String =
         wrapErrors("finish upload for fileId '$fileId'") {
             require(partSha1InOrder.isNotEmpty()) {
@@ -40,6 +44,10 @@ class UploadRepositoryImpl(
                 fileId,
                 partSha1InOrder
             )
+            if (songReq == null) {
+                throw UploadOperationException("Songs details needed to be uploaded")
+            }
+            uploadRepository.upload(songReq)
 
             b2Client.getDownloadUrl(result.fileName)
         }

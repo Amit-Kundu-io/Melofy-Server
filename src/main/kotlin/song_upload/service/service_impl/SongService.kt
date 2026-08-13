@@ -25,11 +25,16 @@ class SongServiceImpl(private val repository: SongRepository) : SongService {
             genre = request.genre.clean("genre", 100),
             language = request.language.clean("language", 50),
             durationSeconds = request.durationSeconds?.also {
-                if (it <= 0) throw SongValidationException("durationSeconds must be positive")
+                if (it <= 0) {
+                    throw SongValidationException("durationSeconds must be positive")
+                }
             },
             artworkUrl = request.artworkUrl?.validUrl("artworkUrl"),
             releaseDate = request.releaseDate?.parseDate(),
             isExplicit = request.isExplicit,
+
+            fileName = request.fileName.clean("fileName", 255),
+            videoId = request.videoId.clean("videoId", 255),
         )
         val playlistId = request.playlistId?.let { value ->
             try {

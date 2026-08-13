@@ -15,4 +15,6 @@ data class NewSong(
     val artworkUrl: String?,
     val releaseDate: LocalDate?,
     val isExplicit: Boolean,
+    val fileName: String?,
+    val videoId: String?,
 )

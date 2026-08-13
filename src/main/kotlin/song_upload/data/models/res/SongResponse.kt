@@ -15,6 +15,8 @@ data class SongResponse(
     val language: String?,
     val durationSeconds: Int?,
     val artworkUrl: String?,
+    val fileName: String?,
+    val videoId: String?,
     val releaseDate: String?,
     val isExplicit: Boolean,
     val createdAt: String,

@@ -22,6 +22,7 @@
 
 package com.plugins.storage.upload.route
 
+import com.amit_kundu_io.song_upload.data.models.req.CreateSongRequest
 import com.amit_kundu_io.utility.halper.doc
 import com.plugins.storage.upload.repository.UploadOperationException
 import com.plugins.storage.upload.repository.UploadRepository
@@ -96,7 +97,7 @@ fun Route.uploadRoutesB2B() {
         if (req.fileId.isBlank() || req.partSha1Array.isEmpty()) {
             return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse("fileId and a non-empty partSha1Array are required"))
         }
-        runCatching { repository.finishUpload(req.fileId, req.partSha1Array) }
+        runCatching { repository.finishUpload(req.fileId, req.partSha1Array,req.song) }
             .onSuccess { call.respond(HttpStatusCode.OK, it) }
             .onFailure { call.respondUploadError(it) }
     }.doc()

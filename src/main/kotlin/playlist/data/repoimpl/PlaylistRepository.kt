@@ -20,6 +20,8 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
+import song_upload.maper.toPlaylist
+import song_upload.maper.toSong
 import java.time.Instant
 import kotlin.uuid.Uuid
 
@@ -101,21 +103,7 @@ class PlaylistRepositoryImpl : PlaylistRepository {
         }
     }
 
-    /** Maps a playlist query row to the internal playlist entity. */
-    private fun ResultRow.toPlaylist() = Playlist(
-        id = this[PlaylistsTable.id], name = this[PlaylistsTable.name],
-        description = this[PlaylistsTable.description], artworkUrl = this[PlaylistsTable.artworkUrl],
-        songCount = this[PlaylistsTable.songCount],
-        createdAt = this[PlaylistsTable.createdAt], updatedAt = this[PlaylistsTable.updatedAt],
-    )
 
-    /** Maps a joined playlist-song query row to the internal song entity. */
-    private fun ResultRow.toSong() = Song(
-        id = this[SongsTable.id], title = this[SongsTable.title], artistName = this[SongsTable.artistName],
-        audioUrl = this[SongsTable.audioUrl], albumName = this[SongsTable.albumName],
-        description = this[SongsTable.description], genre = this[SongsTable.genre], language = this[SongsTable.language],
-        durationSeconds = this[SongsTable.durationSeconds], artworkUrl = this[SongsTable.artworkUrl],
-        releaseDate = this[SongsTable.releaseDate], isExplicit = this[SongsTable.isExplicit],
-        createdAt = this[SongsTable.createdAt], updatedAt = this[SongsTable.updatedAt],
-    )
+
+
 }

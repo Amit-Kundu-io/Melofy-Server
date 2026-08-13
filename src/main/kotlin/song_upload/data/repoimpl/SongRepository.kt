@@ -34,11 +34,16 @@ class SongRepositoryImpl : SongRepository {
     /** Inserts a song and, when supplied, its playlist membership atomically. */
     override suspend fun create(song: NewSong, playlistId: Uuid?): Song = withContext(Dispatchers.IO) {
         transaction {
-            if (playlistId != null && PlaylistsTable.selectAll().where { PlaylistsTable.id eq playlistId }.empty()) {
+            if (playlistId != null && PlaylistsTable.selectAll()
+                    .where { PlaylistsTable.id eq playlistId }
+                    .empty()
+            ) {
                 throw PlaylistNotFoundException()
             }
+
             val now = Instant.now()
             val id = Uuid.random()
+
             SongsTable.insert {
                 it[SongsTable.id] = id
                 it[title] = song.title
@@ -50,21 +55,29 @@ class SongRepositoryImpl : SongRepository {
                 it[durationSeconds] = song.durationSeconds
                 it[audioUrl] = song.audioUrl
                 it[artworkUrl] = song.artworkUrl
+
+                // Video fields
+                it[fileName] = song.fileName
+                it[videoId] = song.videoId
+
                 it[releaseDate] = song.releaseDate
                 it[isExplicit] = song.isExplicit
                 it[createdAt] = now
                 it[updatedAt] = now
             }
+
             if (playlistId != null) {
                 PlaylistSongsTable.insert {
                     it[PlaylistSongsTable.playlistId] = playlistId
                     it[PlaylistSongsTable.songId] = id
                     it[PlaylistSongsTable.addedAt] = now
                 }
+
                 PlaylistsTable.update({ PlaylistsTable.id eq playlistId }) {
                     it[PlaylistsTable.songCount] = PlaylistsTable.songCount + 1
                 }
             }
+
             Song(
                 id = id,
                 title = song.title,
@@ -76,6 +89,11 @@ class SongRepositoryImpl : SongRepository {
                 language = song.language,
                 durationSeconds = song.durationSeconds,
                 artworkUrl = song.artworkUrl,
+
+                // Video fields
+                fileName = song.fileName,
+                videoId = song.videoId,
+
                 releaseDate = song.releaseDate,
                 isExplicit = song.isExplicit,
                 createdAt = now,
@@ -133,6 +151,8 @@ class SongRepositoryImpl : SongRepository {
                         durationSeconds = row[SongsTable.durationSeconds],
                         audioUrl = row[SongsTable.audioUrl],
                         artworkUrl = row[SongsTable.artworkUrl],
+                        fileName = row[SongsTable.fileName],
+                        videoId = row[SongsTable.videoId],
                         releaseDate = row[SongsTable.releaseDate]?.toString(),
                         isExplicit = row[SongsTable.isExplicit],
                         createdAt = row[SongsTable.createdAt].toString(),
@@ -200,6 +220,8 @@ class SongRepositoryImpl : SongRepository {
                         durationSeconds = row[SongsTable.durationSeconds],
                         audioUrl = row[SongsTable.audioUrl],
                         artworkUrl = row[SongsTable.artworkUrl],
+                        fileName = row[SongsTable.fileName],
+                        videoId = row[SongsTable.videoId],
                         releaseDate = row[SongsTable.releaseDate]?.toString(),
                         isExplicit = row[SongsTable.isExplicit],
                         createdAt = row[SongsTable.createdAt].toString(),

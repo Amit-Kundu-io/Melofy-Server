@@ -14,8 +14,14 @@ object SongsTable : Table("songs") {
     val genre = varchar("genre", 100).nullable()
     val language = varchar("language", 50).nullable()
     val durationSeconds = integer("duration_seconds").nullable()
+
     val audioUrl = text("audio_url")
     val artworkUrl = text("artwork_url").nullable()
+
+    // Video fields
+    val fileName = varchar("file_name", 255).nullable()
+    val videoId = varchar("video_id", 255).nullable()
+
     val releaseDate = date("release_date").nullable()
     val isExplicit = bool("is_explicit")
     val createdAt = timestamp("created_at")
