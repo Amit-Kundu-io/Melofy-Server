@@ -8,8 +8,8 @@
 
 package com.plugins.storage.upload.repository
 
-import com.plugins.storage.upload.b2.B2ApiException
 import com.plugins.upload.b2.B2Client
+import utility.wrapErrors
 
 class UploadRepositoryImpl(
     private val b2Client: B2Client
@@ -49,15 +49,16 @@ class UploadRepositoryImpl(
             b2Client.listPartsWithSha1(fileId)
         }
 
-    private suspend inline fun <T> wrapErrors(action: String, block: suspend () -> T): T = try {
-        block()
-    } catch (e: B2ApiException) {
-        throw UploadOperationException("Failed to $action: ${e.message}", e)
-    } catch (e: IllegalArgumentException) {
-        throw e // validation errors — let routes map these to 400 distinctly
-    } catch (e: Exception) {
-        throw UploadOperationException("Failed to $action", e)
-    }
+    override suspend fun getTemporaryDownloadUrl(
+        fileName: String,
+        validDurationSeconds: Int
+    ): String =
+        wrapErrors("generate temporary download URL") {
+            b2Client.getTemporaryDownloadUrl(
+                fileName = fileName,
+                validDurationSeconds = validDurationSeconds
+            )
+        }
 
 
 }

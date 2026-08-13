@@ -34,4 +34,7 @@ interface UploadRepository {
 
     /** partNumber -> sha1 for every part the backend already has. Resume source of truth. */
     suspend fun listCompletedParts(fileId: String): Map<Int, String>
+
+    /** return a download and watch link */
+    suspend fun getTemporaryDownloadUrl(fileName: String, validDurationSeconds: Int = 3600): String
 }

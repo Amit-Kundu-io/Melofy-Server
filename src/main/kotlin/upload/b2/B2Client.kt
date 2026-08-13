@@ -27,15 +27,9 @@ package com.plugins.upload.b2
  */
 
 
-import com.plugins.storage.upload.b2.B2ApiException
-import com.plugins.storage.upload.b2.B2AuthResponse
-import com.plugins.storage.upload.b2.B2StartLargeFileResponse
-import com.plugins.storage.upload.b2.B2UploadPartUrlResponse
-import com.plugins.storage.upload.b2.FinishLargeFileRequest
-import com.plugins.storage.upload.b2.GetUploadPartUrlRequest
-import com.plugins.storage.upload.b2.ListPartsRequest
-import com.plugins.storage.upload.b2.StartLargeFileRequest
 import com.plugins.upload.models.FinishLargeFileResponse.FinishLargeFileResponse
+import com.plugins.upload.models.GetDownloadAuthorizationRequest.B2DownloadAuthorizationResponse
+import com.plugins.upload.models.GetDownloadAuthorizationRequest.GetDownloadAuthorizationRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -55,6 +49,14 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import upload.models.B2Auth.B2AuthResponse.B2AuthResponse
+import upload.models.B2Auth.B2AuthResponse.B2StartLargeFileResponse
+import upload.models.B2Auth.B2AuthResponse.B2UploadPartUrlResponse
+import upload.models.B2Auth.Request.FinishLargeFileRequest
+import upload.models.B2Auth.Request.GetUploadPartUrlRequest
+import upload.models.B2Auth.Request.ListPartsRequest
+import upload.models.B2Auth.Request.StartLargeFileRequest
+import upload.util.B2ApiException
 import java.util.Base64
 
 class B2Client(
@@ -173,5 +175,53 @@ class B2Client(
             obj["code"]?.jsonPrimitive?.content to obj["message"]?.jsonPrimitive?.content
         }.getOrDefault(null to null)
         throw B2ApiException(status.value, code, message, raw)
+    }
+
+
+    suspend fun getTemporaryDownloadUrl(
+        fileName: String,
+        validDurationSeconds: Int = 3600
+    ): String {
+
+        require(fileName.isNotBlank()) {
+            "fileName must not be blank"
+        }
+
+        require(validDurationSeconds in 1..86400) {
+            "validDurationSeconds must be between 1 and 86400"
+        }
+
+        val auth = authorize()
+
+        val response = httpClient.post(
+            "${auth.apiUrl}/b2api/v3/b2_get_download_authorization"
+        ) {
+            header(
+                HttpHeaders.Authorization,
+                auth.authorizationToken
+            )
+
+            contentType(ContentType.Application.Json)
+
+            setBody(
+                GetDownloadAuthorizationRequest(
+                    bucketId = bucketId,
+                    fileNamePrefix = fileName,
+                    validDurationInSeconds = validDurationSeconds
+                )
+            )
+        }
+
+        response.throwIfNotSuccess()
+
+        val result = response.body<B2DownloadAuthorizationResponse>()
+
+        return buildString {
+            append(auth.downloadUrl)
+            append("/file/Video-Ak/")
+            append(fileName)
+            append("?Authorization=")
+            append(result.authorizationToken)
+        }
     }
 }

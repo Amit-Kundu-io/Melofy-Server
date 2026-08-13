@@ -22,8 +22,10 @@
 
 package com.plugins.storage.upload.route
 
+import com.amit_kundu_io.utility.halper.doc
 import com.plugins.storage.upload.repository.UploadOperationException
 import com.plugins.storage.upload.repository.UploadRepository
+import com.plugins.upload.models.GetDownloadAuthorizationRequest.VideoPlayUrlResponse
 import io.ktor.http.*
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.*
@@ -31,23 +33,20 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.koin.ktor.ext.inject
+import upload.models.request.ErrorResponse
+import upload.models.request.FinishUploadRequest
+import upload.models.request.PartsDetailRequest
+import upload.models.request.StartUploadRequest
+import upload.models.request.UploadPartUrlRequest
+import upload.models.request.UploadPartUrlResponse
+import upload.models.response.StartUploadResponse
 
 private const val AUTH_PROVIDER_NAME = "upload-bearer"
 
-@Serializable
-data class StartUploadRequest(val fileName: String, val contentType: String)
-@Serializable
-data class StartUploadResponse(val fileId: String)
 
-@Serializable data class UploadPartUrlRequest(val fileId: String)
-@Serializable
-data class UploadPartUrlResponse(val uploadUrl: String, val authorizationToken: String)
 
-@Serializable data class FinishUploadRequest(val fileId: String, val partSha1Array: List<String>)
 
-@Serializable data class PartsDetailRequest(val fileId: String)
 
-@Serializable data class ErrorResponse(val error: String)
 
 /**
  * Registers the bearer-auth scheme this feature's routes require. Call
@@ -78,7 +77,7 @@ fun Route.uploadRoutesB2B() {
         runCatching { repository.startUpload(req.fileName, req.contentType) }
             .onSuccess { call.respond(StartUploadResponse(it.fileId)) }
             .onFailure { call.respondUploadError(it) }
-    }
+    }.doc()
 
     // Replaces the old byte-relaying "/part" route. Returns a short-lived
     // upload URL + token; the client PUTs the part's bytes straight to B2.
@@ -90,7 +89,7 @@ fun Route.uploadRoutesB2B() {
         runCatching { repository.getUploadPartUrl(req.fileId) }
             .onSuccess { call.respond(UploadPartUrlResponse(it.uploadUrl, it.authorizationToken)) }
             .onFailure { call.respondUploadError(it) }
-    }
+    }.doc()
 
     post("/videos/upload/finish") {
         val req = call.receive<FinishUploadRequest>()
@@ -100,7 +99,7 @@ fun Route.uploadRoutesB2B() {
         runCatching { repository.finishUpload(req.fileId, req.partSha1Array) }
             .onSuccess { call.respond(HttpStatusCode.OK, it) }
             .onFailure { call.respondUploadError(it) }
-    }
+    }.doc()
 
     post("/videos/upload/parts") {
         val req = call.receive<PartsDetailRequest>()
@@ -110,6 +109,49 @@ fun Route.uploadRoutesB2B() {
         runCatching { repository.listCompletedParts(req.fileId) }
             .onSuccess { call.respond(it) }
             .onFailure { call.respondUploadError(it) }
+    }.doc()
+
+
+
+    get("/videos/{videoId}/{fileName}/play-url") {
+
+        val videoId = call.parameters["videoId"]
+        val fileName = call.parameters["fileName"]
+
+        if (videoId.isNullOrBlank()) {
+            return@get call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse("videoId is required")
+            )
+        }
+
+
+        runCatching {
+            // Get video from your database
+            if (fileName.isNullOrBlank()) {
+                throw IllegalArgumentException("Video not found")
+            }
+
+            // Optional: check whether this student has access
+            // authorizeStudentForVideo(call, video)
+
+            val expiresIn = 3600
+
+            val url = repository.getTemporaryDownloadUrl(
+                fileName = fileName,
+                validDurationSeconds = expiresIn
+            )
+
+            VideoPlayUrlResponse(
+                url = url,
+                expiresInSeconds = expiresIn
+            )
+
+        }.onSuccess {
+            call.respond(HttpStatusCode.OK, it)
+        }.onFailure {
+            call.respondUploadError(it)
+        }
     }
 }
 

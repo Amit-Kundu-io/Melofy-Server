@@ -16,12 +16,12 @@ package com.plugins.storage.upload.di
 
 import com.plugins.storage.upload.repository.UploadRepository
 import com.plugins.storage.upload.repository.UploadRepositoryImpl
-import com.plugins.upload.auth.SharedSecretUploadAuthValidator
 import com.plugins.upload.auth.UploadAuthValidator
 import com.plugins.upload.b2.B2Client
 import com.plugins.upload.b2.KtorClient
 import io.ktor.client.HttpClient
 import org.koin.dsl.module
+import upload.auth.SharedSecretUploadAuthValidator
 
 private fun requiredEnv(name: String): String =
     System.getenv(name)?.takeIf { it.isNotBlank() }
