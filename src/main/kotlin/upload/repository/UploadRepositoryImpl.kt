@@ -8,8 +8,8 @@
 
 package com.plugins.storage.upload.repository
 
-import B2B.B2Client
 import com.plugins.storage.upload.b2.B2ApiException
+import com.plugins.upload.b2.B2Client
 
 class UploadRepositoryImpl(
     private val b2Client: B2Client
