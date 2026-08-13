@@ -8,3 +8,8 @@ data class GetDownloadAuthorizationRequest(
     val fileNamePrefix: String,
     val validDurationInSeconds: Int
 )
+
+@Serializable
+data class GetDownloadAuthorizationResponse(
+    val authorizationToken: String
+)

@@ -4,15 +4,21 @@ import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
 
 /**
+ * A chunk of bytes read off the source channel. [bytes] is a reused backing
+ * array that is larger than the meaningful data on the final chunk -- always
+ * read exactly [length] bytes from it, never bytes.size.
+ */
+data class Chunk(val bytes: ByteArray, val length: Int)
+
+/**
  * Reads [chunkSize]-byte chunks from [source] on demand, without ever
- * holding more than one chunk in memory. This is what keeps a 10GB (or
- * larger) upload from ever loading the whole file into RAM.
+ * holding more than one chunk in memory.
  *
- * IMPORTANT: [Chunk.bytes] in the returned value is the SAME backing array
- * every time -- it is only valid until the next call to [nextChunk]. Callers
- * must fully consume (upload + retry) a chunk before requesting the next
- * one. This is safe as long as chunks are processed strictly sequentially,
- * which is required anyway (parts must be uploaded in order).
+ * IMPORTANT: [bytes] in the returned [Chunk] is the SAME backing array every
+ * time -- it is only valid until the next call to [nextChunk]. Callers must
+ * fully consume (upload + retry) a chunk before requesting the next one.
+ * This is safe as long as chunks are processed strictly sequentially, which
+ * is required anyway (parts must be uploaded in order).
  */
 class ChunkReader(
     private val source: ByteReadChannel,

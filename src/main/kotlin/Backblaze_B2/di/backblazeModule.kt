@@ -1,5 +1,6 @@
 package com.plugins.Backblaze_B2.di
 
+import B2B.B2Client
 import com.plugins.Backblaze_B2.apis.BackblazeApi
 import com.plugins.Backblaze_B2.apis.BackblazeApiImpl
 import com.plugins.Backblaze_B2.client.KtorClient
@@ -10,30 +11,31 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
-/**
- * Single source of truth for B2 wiring.
- *
- * NOTE: the old B2Client (v3 API, non-streaming, buffers whole parts
- * received from an already-buffered client request) has been removed.
- * BackblazeApiImpl + BackblazeStorageImpl (v4 API, true streaming,
- * bounded memory) fully replace it -- keeping both was dead weight and a
- * maintenance trap (two clients, two auth caches, two API versions).
- */
 fun uploadModule() = module {
 
+    // This binding was missing before -- BackblazeApiImpl needs an
+    // HttpClient injected, and without registering one here Koin fails at
+    // startup trying to resolve BackblazeApiImpl's constructor.
     single<HttpClient> { KtorClient.create() }
 
     single {
         BackblazeConfig(
-            keyId = System.getenv("B2_KEY_ID") ?: error("Missing required env var B2_KEY_ID"),
-            applicationKey = System.getenv("B2_APP_KEY") ?: error("Missing required env var B2_APP_KEY"),
-            bucketId = System.getenv("B2_BUCKET_ID") ?: error("Missing required env var B2_BUCKET_ID"),
-            // Falls back to the previous hardcoded value so existing
-            // deployments keep working; set B2_BUCKET_NAME to override.
-            bucketName = System.getenv("B2_BUCKET_NAME") ?: "Video-Ak"
+            keyId = "d896ea49a883",//System.getenv("B2_KEY_ID") ?: error("Missing required env var B2_KEY_ID"),
+            applicationKey = "005f66a47ae51022b8ec820032e9c7f01e10d640ee",//System.getenv("B2_APPLICATION_KEY") ?: error("Missing required env var B2_APPLICATION_KEY"),
+            bucketId ="0d280936beda94399af80813" ,//System.getenv("B2_BUCKET_ID") ?: error("Missing required env var B2_BUCKET_ID")
+            bucketName = "Video-Ak"
         )
     }
 
     singleOf(::BackblazeApiImpl) { bind<BackblazeApi>() }
     singleOf(::BackblazeStorageImpl) { bind<BackblazeStorage>() }
+
+    single {
+        B2Client(
+            keyId = "d896ea49a883",//System.getenv("B2_KEY_ID") ?: error("Missing required env var B2_KEY_ID"),
+            bucketId = "0d280936beda94399af80813",//System.getenv("B2_BUCKET_ID") ?: error("Missing required env var B2_BUCKET_ID")
+            appKey = "005f66a47ae51022b8ec820032e9c7f01e10d640ee",
+            httpClient = get()
+        )
+    }
 }

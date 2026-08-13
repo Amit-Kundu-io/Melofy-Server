@@ -1,10 +1,10 @@
 package com.plugins.Backblaze_B2.storage
 
-import com.plugins.Backblaze_B2.client.UploadConstants.CHUNK_SIZE
-import com.plugins.Backblaze_B2.client.UploadConstants.MAX_PART_RETRIES
-import com.plugins.Backblaze_B2.client.UploadConstants.MAX_START_RETRIES
-import com.plugins.Backblaze_B2.client.UploadConstants.RETRY_BASE_DELAY_MS
 import com.plugins.Backblaze_B2.Models.UploadResult
+import com.plugins.Backblaze_B2.UploadConstants.CHUNK_SIZE
+import com.plugins.Backblaze_B2.UploadConstants.MAX_PART_RETRIES
+import com.plugins.Backblaze_B2.UploadConstants.MAX_START_RETRIES
+import com.plugins.Backblaze_B2.UploadConstants.RETRY_BASE_DELAY_MS
 import com.plugins.Backblaze_B2.apis.BackblazeApi
 import com.plugins.Backblaze_B2.apis.CancelLargeFileRequest
 import com.plugins.Backblaze_B2.apis.FinishLargeFileRequest
@@ -17,8 +17,7 @@ import kotlinx.coroutines.delay
 
 /**
  * Uploads large files to Backblaze B2 with a bounded, near-constant memory
- * footprint -- suitable for servers with as little as ~100-200MB of RAM,
- * and verified for files up to 10GB+.
+ * footprint -- suitable for servers with as little as ~100-200MB of RAM.
  *
  * Design:
  *  - Bytes are read directly off the live request channel as they arrive
@@ -29,20 +28,10 @@ import kotlinx.coroutines.delay
  *    upload URL, without touching the source channel again.
  *  - Once a chunk has been consumed from the channel there is no going
  *    back -- so chunks are processed strictly sequentially.
- *
- * Scaling math: B2 allows at most 10,000 parts per large file. With the
- * default 30MB CHUNK_SIZE that's a ceiling of ~293GB per upload; a 10GB
- * file needs only ~342 parts, well inside the limit. [MAX_PART_COUNT]
- * below fails fast (before any bytes are read) rather than discovering
- * the limit from a B2 error thousands of parts in.
  */
 class BackblazeStorageImpl(
     private val api: BackblazeApi
 ) : BackblazeStorage {
-
-    private companion object {
-        const val MAX_PART_COUNT = 10_000
-    }
 
     override suspend fun uploadVideo(
         fileName: String,
@@ -54,12 +43,6 @@ class BackblazeStorageImpl(
 
         require(contentLength > 0) {
             "contentLength must be known and greater than 0."
-        }
-
-        val expectedParts = (contentLength + CHUNK_SIZE - 1) / CHUNK_SIZE
-        require(expectedParts <= MAX_PART_COUNT) {
-            "File requires $expectedParts parts at ${CHUNK_SIZE}B/part, " +
-                "which exceeds B2's $MAX_PART_COUNT part limit. Increase CHUNK_SIZE."
         }
 
         val startResponse = startLargeFileWithRetry(fileName, contentType)
@@ -88,15 +71,17 @@ class BackblazeStorageImpl(
                 partNumber++
             }
 
-            val finishResponse = api.finishLargeFile(
+           val data =  api.finishLargeFile(
                 FinishLargeFileRequest(
                     fileId = startResponse.fileId,
                     partSha1Array = partSha1Array
                 )
             )
 
+            println("FILE_ID : ${data.fileId}")
+
             return UploadResult(
-                fileId = finishResponse.fileId,
+                fileId = startResponse.fileId,
                 fileName = fileName,
                 contentLength = contentLength,
                 contentType = contentType

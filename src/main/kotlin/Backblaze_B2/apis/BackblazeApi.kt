@@ -1,6 +1,7 @@
 package com.plugins.Backblaze_B2.apis
 
 import com.plugins.Backblaze_B2.storage.Chunk
+import kotlinx.serialization.Serializable
 
 interface BackblazeApi {
 
@@ -60,17 +61,23 @@ interface BackblazeApi {
         request: CancelLargeFileRequest
     ): CancelLargeFileResponse
 
-    /**
-     * Lists parts B2 already has for an in-progress large file. This is
-     * the resume source of truth: a client (e.g. UploadWorker) calls this
-     * on restart to find out which parts it can skip re-uploading.
-     */
-    suspend fun listParts(
-        request: ListPartsRequest
-    ): ListPartsResponse
 
     suspend fun generateWatchUrl(
         fileName: String,
         expiresInSeconds: Int = 3600
     ): String
+
+
+   // suspend fun getById(id: String): Video?
 }
+
+
+@Serializable
+data class Video(
+    val id: String,
+    val title: String,
+    val fileId: String,
+    val fileName: String,
+    val contentType: String,
+    val contentLength: Long
+)

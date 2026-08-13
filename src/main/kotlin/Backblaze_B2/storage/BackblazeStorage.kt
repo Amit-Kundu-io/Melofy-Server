@@ -18,7 +18,7 @@ interface BackblazeStorage {
      * @param fileName Name of the file in Backblaze.
      * @param contentType MIME type (e.g. "video/mp4").
      * @param channel Raw request body, read chunk by chunk as bytes arrive
-     * -- no full-body wait, which is what makes multi-GB files safe.
+     * -- no full-body wait.
      * @param contentLength Total file size in bytes (from the request's
      * Content-Length header).
      * @param onPartUploaded Called with the number of bytes just forwarded

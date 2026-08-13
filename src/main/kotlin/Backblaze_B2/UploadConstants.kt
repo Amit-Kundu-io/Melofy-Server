@@ -1,4 +1,4 @@
-package com.plugins.Backblaze_B2.client
+package com.plugins.Backblaze_B2
 
 object UploadConstants {
 
